@@ -1,6 +1,6 @@
 import React from 'react';
 
-const operations = {
+export const operations = {
   sqrt: {
     value: '√',
     className: 'button number op',
