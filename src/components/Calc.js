@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MathOperation, operationTypes, operations } from './MathOperation';
 import DigitButton from './DigitButton';
 
@@ -37,12 +37,6 @@ function calculate(operation, num1, num2 = 0) {
 }
 
 function Calc() {
-  /**
-   * Add (0-9) to <DigitButton /> with value and onClick function as exlplained in the requirements
-   * Add the correct types to MathOperation, if you are having problem make sure its written correctly compared to operationTypes array
-   * This is a state machine, you'll need to work wisely with React.js State and Lifecycle functionality
-   * You can use calculate function for your aid
-   */
 
 const digits = Array(10).fill('');
 const [result, setResult] = useState(0);
@@ -55,22 +49,6 @@ const setNumber = (clickedDigit) => {
   if (!chosenOperator) setFirstNumber(firstNumber * 10 + clickedDigit);
   else setSecondNumber(secondNumber * 10 + clickedDigit);
 }
-
-// const operatorNob = (operator) => {
-//   if (operator === "AC") {
-//     setResult(0);
-//     setFirstNumber(0);
-//     setSecondNumber(0);
-//     setChosenOperator();
-//   } else if (operator === "=") {
-//     let calculatedNumber = calculate(chosenOperator, firstNumber, secondNumber);
-//     setFirstNumber(calculatedNumber);
-//     setSecondNumber(0);
-//     setChosenOperator();
-//   } else {
-//     setChosenOperator(operator);
-//   }
-// };
 
 const operatorNob = (operator) => {
   switch (operator) {
@@ -88,6 +66,25 @@ const operatorNob = (operator) => {
       setChosenOperator();
       break;
 
+    case '√':
+      setFirstNumber(calculate(operator, firstNumber));
+      setSecondNumber(0);
+      setChosenOperator();
+      break;
+
+    case 'x²':
+      setFirstNumber(calculate(operator, firstNumber));
+      setSecondNumber(0);
+      setChosenOperator();
+      break;
+
+    case '.':
+      let digitsAfterPoint = secondNumber.toString().length;
+      setResult(calculate('+', firstNumber, secondNumber/Math.pow(10, digitsAfterPoint)));
+      console.log(calculate('+', firstNumber, secondNumber/Math.pow(10, digitsAfterPoint)))
+      setChosenOperator(operator);
+      break;
+
     default:
       setChosenOperator(operator);
   }
@@ -98,6 +95,7 @@ useEffect(() => {
   console.log('Second: ', secondNumber);
   console.log('Opr: ', chosenOperator);
   setResult(firstNumber);
+  // if (chosenOperator === '.') setResult(firstNumber + chosenOperator + secondNumber)
   if (chosenOperator && !secondNumber) setResult(firstNumber + ' ' + chosenOperator);
   if (chosenOperator && secondNumber) setResult(firstNumber + ' ' + chosenOperator + ' ' + secondNumber);
 }, [firstNumber, secondNumber, chosenOperator]);
@@ -105,11 +103,9 @@ useEffect(() => {
   return (
     <div className='calculator'>
       <div className='result'>
-        { /* Print the result of the calculation here */ }
         {result}
       </div>
       <div className='calculator-digits'>
-         { /* Enter here all of the MathOperation and DigitButton components */ }
          {digits.map((elem, i) => {
            return (
             <DigitButton
