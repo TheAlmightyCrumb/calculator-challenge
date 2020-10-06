@@ -9,8 +9,6 @@ import DigitButton from './DigitButton';
  * @param {*} num2 The second num to use in the calculation
  */
 
-
-
 function calculate(operation, num1, num2 = 0) {
   switch (operation) {
     case '+':
@@ -41,21 +39,39 @@ function Calc() {
 const digits = Array(10).fill('');
 const [result, setResult] = useState(0);
 const [chosenOperator, setChosenOperator] = useState();
-const [firstNumber, setFirstNumber] = useState(0);
-const [secondNumber, setSecondNumber] = useState(0);
-
+const [firstNumber, setFirstNumber] = useState(false);
+const [secondNumber, setSecondNumber] = useState(false);
+const [decimal, setDecimal] = useState(0);
+const [isDecimal, setIsDecimal] = useState(false);
 
 const setNumber = (clickedDigit) => {
-  if (!chosenOperator) setFirstNumber(firstNumber * 10 + clickedDigit);
+  if (firstNumber === false) setFirstNumber(clickedDigit);
+  else if (isDecimal && !secondNumber) setFirstNumber(firstNumber + clickedDigit / 10);
+  else if (isDecimal && secondNumber !== false) setSecondNumber(secondNumber + clickedDigit / 10);
+  else if (!chosenOperator) setFirstNumber(firstNumber * 10 + clickedDigit);
+  else if (secondNumber === false) setSecondNumber(clickedDigit);
   else setSecondNumber(secondNumber * 10 + clickedDigit);
 }
 
-const operatorNob = (operator) => {
+const currentOperator = (operator) => {
+
+  // if (isDecimal) {
+  //   let digitsAfterPoint = decimal.toString().length;
+  //   if (secondNumber > 0) { 
+  //     setSecondNumber(calculate('+', secondNumber, decimal/Math.pow(10, digitsAfterPoint)));
+  //   }
+  //   else {
+  //     setFirstNumber(calculate('+', firstNumber, decimal/Math.pow(10, digitsAfterPoint)));
+  //   }
+  // }
+
   switch (operator) {
     case 'AC':
       setResult(0);
       setFirstNumber(0);
       setSecondNumber(0);
+      setDecimal(0);
+      setIsDecimal(false);
       setChosenOperator();
       break;
     
@@ -63,29 +79,31 @@ const operatorNob = (operator) => {
       let calculatedNumber = calculate(chosenOperator, firstNumber, secondNumber);
       setFirstNumber(calculatedNumber);
       setSecondNumber(0);
+      setIsDecimal(false);
       setChosenOperator();
       break;
 
     case '√':
       setFirstNumber(calculate(operator, firstNumber));
       setSecondNumber(0);
+      setIsDecimal(false);
       setChosenOperator();
       break;
 
     case 'x²':
       setFirstNumber(calculate(operator, firstNumber));
       setSecondNumber(0);
+      setIsDecimal(false);
       setChosenOperator();
       break;
 
     case '.':
-      let digitsAfterPoint = secondNumber.toString().length;
-      setResult(calculate('+', firstNumber, secondNumber/Math.pow(10, digitsAfterPoint)));
-      console.log(calculate('+', firstNumber, secondNumber/Math.pow(10, digitsAfterPoint)))
-      setChosenOperator(operator);
+      setIsDecimal(true);
       break;
 
     default:
+      setIsDecimal(false);
+      setDecimal(0);
       setChosenOperator(operator);
   }
 };
@@ -93,12 +111,13 @@ const operatorNob = (operator) => {
 useEffect(() => {
   console.log('First: ', firstNumber);
   console.log('Second: ', secondNumber);
+  console.log('Decimal: ', decimal);
   console.log('Opr: ', chosenOperator);
   setResult(firstNumber);
-  // if (chosenOperator === '.') setResult(firstNumber + chosenOperator + secondNumber)
+  // if (chosenOperator === '.') { setResult(firstNumber + chosenOperator + decimal); return }
   if (chosenOperator && !secondNumber) setResult(firstNumber + ' ' + chosenOperator);
   if (chosenOperator && secondNumber) setResult(firstNumber + ' ' + chosenOperator + ' ' + secondNumber);
-}, [firstNumber, secondNumber, chosenOperator]);
+}, [firstNumber, secondNumber, chosenOperator, decimal]);
 
   return (
     <div className='calculator'>
@@ -121,7 +140,7 @@ useEffect(() => {
                 key={`Operator_${opr}`} 
                 type={opr} 
                 onClick={() => {
-                  operatorNob(operations[opr].value);  
+                  currentOperator(operations[opr].value);  
                 }}
               />
             )
